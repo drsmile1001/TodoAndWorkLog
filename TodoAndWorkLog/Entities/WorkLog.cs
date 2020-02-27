@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TodoAndWorkLog.Entities
 {
@@ -13,8 +10,11 @@ namespace TodoAndWorkLog.Entities
 
         public DateTime RecordTime { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public DateTime Date { get; set; }
 
-        public DateTime EndTime { get; set; }
+        public double Hours { get; set; }
+
+
+        public Todo Todo { get; set; }
     }
 }

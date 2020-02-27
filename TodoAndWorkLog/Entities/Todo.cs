@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TodoAndWorkLog.Entities
 {
@@ -11,11 +9,11 @@ namespace TodoAndWorkLog.Entities
 
         public string ProjectId { get; set; }
 
+        public DateTime RecordTime { get; set; }
+
         public string Name { get; set; }
 
-        public string Description { get; set; }
-
-        public DateTime RecordTime { get; set; }
+        public string Description { get; set; } = "";
 
         public DateTime? DueDate { get; set; }
 
@@ -23,5 +21,7 @@ namespace TodoAndWorkLog.Entities
 
 
         public Project Project { get; set; }
+
+        public List<WorkLog> WorkLogs { get; set; }
     }
 }

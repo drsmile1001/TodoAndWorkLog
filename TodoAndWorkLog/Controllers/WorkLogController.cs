@@ -8,23 +8,23 @@ namespace TodoAndWorkLog.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TodoController : ControllerBase
+    public class WorkLogController : ControllerBase
     {
         private readonly AppDbContext _db;
 
-        public TodoController(AppDbContext db)
+        public WorkLogController(AppDbContext db)
         {
             _db = db;
         }
 
         [HttpGet]
-        public IEnumerable<Todo> Get()
+        public IEnumerable<WorkLog> Get()
         {
-            return _db.Todo.ToArray();
+            return _db.WorkLog.ToArray();
         }
 
         [HttpPost]
-        public ActionResult<Todo> Post([FromBody] Todo model)
+        public ActionResult<WorkLog> Post([FromBody] WorkLog model)
         {
             model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
             model.RecordTime = DateTime.Now;
@@ -41,20 +41,27 @@ namespace TodoAndWorkLog.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Todo> Put(string id, [FromBody] Todo model)
+        public ActionResult<WorkLog> Put(string id, [FromBody] WorkLog model)
         {
             if (id != model.Id)
                 return BadRequest();
             model.RecordTime = DateTime.Now;
-            _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            _db.SaveChanges();
+            try
+            {
+                _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                _db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.InnerException.Message);
+            }
             return model;
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(string id)
         {
-            var model = new Todo
+            var model = new WorkLog
             {
                 Id = id
             };

@@ -1,0 +1,31 @@
+﻿@typeparam TItem
+<select @oninput="OnValueChanged">
+   @foreach (var item in Items)
+   {
+       <option value="@ValueSelector(item)">@NameSelector(item)</option>
+   }
+</select>
+
+@code {
+    [Parameter]
+    public string Value { get; set; }
+
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; }
+
+    [Parameter]
+    public Func<TItem, string> ValueSelector {get;set;}
+
+    [Parameter]
+    public Func<TItem, string> NameSelector {get;set;}
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    private Task OnValueChanged(ChangeEventArgs e)
+    {
+        Value = e.Value.ToString();
+
+        return ValueChanged.InvokeAsync(Value);
+    }
+}

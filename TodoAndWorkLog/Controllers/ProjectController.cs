@@ -28,14 +28,23 @@ namespace TodoAndWorkLog.Controllers
         {
             model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
             model.RecordTime = DateTime.Now;
-            _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-            _db.SaveChanges();
+            try
+            {
+                _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                _db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.InnerException.Message);
+            }
             return model;
         }
 
         [HttpPut("{id}")]
         public ActionResult<Project> Patch(string id, [FromBody] Project model)
         {
+            if (id != model.Id)
+                return BadRequest();
             model.RecordTime = DateTime.Now;
             _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             _db.SaveChanges();

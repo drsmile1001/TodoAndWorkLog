@@ -1,9 +1,13 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Threading;
 using TodoAndWorkLog.Entities;
 using TodoAndWorkLog.Services;
 
@@ -46,8 +50,46 @@ namespace TodoAndWorkLog
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
+            app.UseWebSockets(new WebSocketOptions
+            {
+                ReceiveBufferSize = 4 * 1024
+            });
+            app.Use(async (context, next) =>
+            {
+                // 如果Request為WebSocket的
+                if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/ws")
+                {
+                    // 容許WebSocket連線並取得WebSocket實例
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        WebSocketReceiveResult receivedData = null;
+                        // 接收一次訊息中的所有段落
+                        do
+                        {
+                            // 接收緩衝區
+                            ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4 * 1024]);
 
+                            // 接收
+                            receivedData = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
+
+                            // 回傳
+                            await webSocket.SendAsync(
+                                buffer.Take(receivedData.Count).ToArray(),
+                                receivedData.MessageType,
+                                receivedData.EndOfMessage,
+                                CancellationToken.None);
+                        } while (!receivedData.EndOfMessage); // 是否為最後一的段落
+                    }
+                }
+                else
+                {
+                    await next();
+                }
+
+            });
+
+            app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();

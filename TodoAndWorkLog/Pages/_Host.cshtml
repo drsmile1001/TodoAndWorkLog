@@ -32,5 +32,33 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <environment include="Development">
+        @* 開發階段後端重新編譯後自動刷新網頁 *@
+        <script>
+            function connect(reloadPage) {
+                let watchDog = new WebSocket(`wss://${location.host}/ws`);
+
+                watchDog.onopen = function () {
+                    if (reloadPage)
+                        location.reload();
+                    else
+                        console.log("連線成功")
+                }
+
+                watchDog.onclose = function () {
+                    console.log('連線中斷，將在1秒後重新連線');
+                    setTimeout(function () {
+                        connect(true);
+                    }, 100);
+                };
+
+                watchDog.onerror = function () {
+                    watchDog.close();
+                };
+            }
+
+            connect();
+        </script>
+    </environment>
 </body>
 </html>

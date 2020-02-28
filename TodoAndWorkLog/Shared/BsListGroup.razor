@@ -1,0 +1,35 @@
+﻿@typeparam TItem
+<ul class="list-group">
+
+    @foreach (var item in Items)
+    {
+        <li class="list-group-item">
+            @NameSelector(item)
+            @{
+                var children = ChildrenSelector == null
+                    ? null
+                    : ChildrenSelector(item);
+                if (children != null && children.Any())
+                {
+                    <BsListGroup TItem="TItem"
+                                 Items="children"
+                                 NameSelector="NameSelector"
+                                 ChildrenSelector="ChildrenSelector!" />
+                }
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; }
+
+
+    [Parameter]
+    public Func<TItem, string> NameSelector { get; set; }
+
+    [Parameter]
+    public Func<TItem, IEnumerable<TItem>>? ChildrenSelector { get; set; } = null;
+
+}

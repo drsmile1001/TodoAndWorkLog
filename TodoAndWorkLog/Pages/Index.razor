@@ -1,7 +1,52 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Entities
 
-Welcome to your new app.
+<BsListGroup Items="Items"
+             NameSelector="item=>item.Name"
+             ChildrenSelector="item=>item.Children"/>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    private WorkItem[] Items { get; set; } = new[]
+    {
+        new WorkItem
+        {
+            Id = "1",
+            Name = "1",
+            Children = new List<WorkItem>
+            {
+                new WorkItem
+                {
+                    Id = "1-1",
+                    Name = "1-1"
+                },
+                new WorkItem
+                {
+                    Id = "1-2",
+                    Name = "1-2"
+                }
+            }
+        },
+        new WorkItem
+        {
+            Id = "2",
+            Name = "2",
+            Children = new List<WorkItem>
+            {
+                new WorkItem
+                {
+                    Id = "2-1",
+                    Name = "2-1"
+                },
+                new WorkItem
+                {
+                    Id = "2-2",
+                    Name = "2-2"
+                }
+            }
+        }
+    };
+
+
+
+}

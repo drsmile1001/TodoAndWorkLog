@@ -1,5 +1,6 @@
 ﻿@typeparam TItem
-<select @oninput="OnValueChanged">
+<select class="form-control"
+        @oninput="OnValueChanged">
    @foreach (var item in Items)
    {
        <option value="@ValueSelector(item)">@NameSelector(item)</option>

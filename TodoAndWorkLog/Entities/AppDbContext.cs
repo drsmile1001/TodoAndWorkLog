@@ -13,35 +13,16 @@ namespace TodoAndWorkLog.Entities
         {
         }
 
-        public virtual DbSet<Project> Project { get; set; }
-        public virtual DbSet<Todo> Todo { get; set; }
+        public virtual DbSet<WorkItem> WorkItem { get; set; }
 
         public virtual DbSet<WorkLog> WorkLog { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Project>(entity =>
+            modelBuilder.Entity<WorkItem>(entity =>
             {
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever();
-
-                entity.Property(e => e.Name)
-                    .IsRequired();
-
-                entity.Property(e => e.RecordTime)
-                    .IsRequired();
-
-                entity.HasIndex(e => e.Name)
-                    .IsUnique();
-            });
-
-            modelBuilder.Entity<Todo>(entity =>
-            {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever();
-
-                entity.Property(e => e.ProjectId)
-                    .IsRequired();
 
                 entity.Property(e => e.Name)
                     .IsRequired();
@@ -54,13 +35,13 @@ namespace TodoAndWorkLog.Entities
 
                 entity.HasIndex(e => new
                 {
-                    e.ProjectId,
+                    e.ParentId,
                     e.Name
                 }).IsUnique();
 
-                entity.HasOne(todo => todo.Project)
-                    .WithMany(project => project.Todos)
-                    .HasForeignKey(todo => todo.ProjectId)
+                entity.HasOne(workItem=>workItem.Parent)
+                    .WithMany(workItem => workItem.Children)
+                    .HasForeignKey(todo => todo.ParentId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -80,14 +61,14 @@ namespace TodoAndWorkLog.Entities
 
                 entity.HasIndex(e => new
                 {
-                    e.TodoId,
+                    e.WorkItemId,
                     e.Date
                 }).IsUnique();
 
-                entity.HasOne(workLog => workLog.Todo)
+                entity.HasOne(workLog => workLog.WorkItem)
                     .WithMany(project => project.WorkLogs)
-                    .HasForeignKey(workLog => workLog.TodoId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .HasForeignKey(workLog => workLog.WorkItemId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

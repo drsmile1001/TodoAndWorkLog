@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace TodoAndWorkLog.Entities
 {
-    public class Todo
+    public class WorkItem
     {
         public string Id { get; set; }
 
-        public string ProjectId { get; set; }
+        public string? ParentId { get; set; }
 
         public DateTime RecordTime { get; set; }
 
@@ -20,7 +20,9 @@ namespace TodoAndWorkLog.Entities
         public DateTime? DoneDate { get; set; }
 
 
-        public Project Project { get; set; }
+        public WorkItem Parent{ get; set; }
+
+        public List<WorkItem> Children { get; set; }
 
         public List<WorkLog> WorkLogs { get; set; }
     }

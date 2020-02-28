@@ -1,0 +1,58 @@
+<div class="my-combo-box">
+    value:@Value
+    <input @bind="Value"
+           class="form-control"
+           @onkeydown="OnKeyDown"/>
+    <div class="my-combo-box-list card">
+        <ul>
+            @foreach (var item in FilteredValue)
+            {
+                <li>@item</li>    
+            }
+        </ul>
+    </div>
+</div>
+
+
+<style>
+.my-combo-box{
+    position: relative;
+}
+.my-combo-box .my-combo-box-list{
+    position: absolute;
+    width: 100%;
+}
+</style>
+@code {
+    [Parameter]
+    public List<string> Items { get; set; } = new List<string>
+        {
+            "aaa",
+            "abc",
+            "bbb",
+            "ccc"
+        };
+
+    private string Value {get;set;} = "";
+
+    public string[] FilteredValue =>
+        Items.Where(item=>item.StartsWith(Value))
+            .ToArray();
+
+    private void OnKeyDown(KeyboardEventArgs e){
+        switch (e.Code)
+        {
+            case "ArrowUp":
+                break;
+            case "ArrowDown":
+                break;
+            default:
+                break;
+        }
+        Console.WriteLine(e.Code);
+    }
+
+    private void Test(){
+        Items.Add("abc");
+    }
+}

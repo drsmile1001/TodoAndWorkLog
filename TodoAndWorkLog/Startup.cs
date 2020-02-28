@@ -56,37 +56,25 @@ namespace TodoAndWorkLog
             });
             app.Use(async (context, next) =>
             {
-                // 如果Request為WebSocket的
-                if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/ws")
+                // 如果Request為WebSocket且路徑爲/watchDog
+                if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/watchDog")
                 {
                     // 容許WebSocket連線並取得WebSocket實例
                     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     while (webSocket.State == WebSocketState.Open)
                     {
-                        WebSocketReceiveResult receivedData = null;
+                        WebSocketReceiveResult? receivedData = null;
                         // 接收一次訊息中的所有段落
                         do
                         {
                             // 接收緩衝區
                             ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4 * 1024]);
-
                             // 接收
                             receivedData = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
-
-                            // 回傳
-                            await webSocket.SendAsync(
-                                buffer.Take(receivedData.Count).ToArray(),
-                                receivedData.MessageType,
-                                receivedData.EndOfMessage,
-                                CancellationToken.None);
-                        } while (!receivedData.EndOfMessage); // 是否為最後一的段落
+                        } while (!receivedData.EndOfMessage); // 是否為最後的段落
                     }
                 }
-                else
-                {
-                    await next();
-                }
-
+                else await next();
             });
 
             app.UseRouting();

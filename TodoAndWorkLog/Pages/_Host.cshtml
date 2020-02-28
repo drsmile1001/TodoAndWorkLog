@@ -36,7 +36,7 @@
         @* 開發階段後端重新編譯後自動刷新網頁 *@
         <script>
             function connect(reloadPage) {
-                let watchDog = new WebSocket(`wss://${location.host}/ws`);
+                let watchDog = new WebSocket(`wss://${location.host}/watchDog`);
 
                 watchDog.onopen = function () {
                     if (reloadPage)
@@ -56,7 +56,6 @@
                     watchDog.close();
                 };
             }
-
             connect();
         </script>
     </environment>

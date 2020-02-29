@@ -5,13 +5,13 @@ namespace TodoAndWorkLog.Entities
 {
     public class WorkItem
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = "";
 
         public string? ParentId { get; set; }
 
         public DateTime RecordTime { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         public string Description { get; set; } = "";
 
@@ -20,10 +20,10 @@ namespace TodoAndWorkLog.Entities
         public DateTime? DoneDate { get; set; }
 
 
-        public WorkItem Parent{ get; set; }
+        public WorkItem? Parent{ get; set; }
 
-        public List<WorkItem> Children { get; set; }
+        public List<WorkItem> Children { get; set; } = new List<WorkItem>();
 
-        public List<WorkLog> WorkLogs { get; set; }
+        public List<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
     }
 }

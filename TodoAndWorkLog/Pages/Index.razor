@@ -1,52 +1,33 @@
 ﻿@page "/"
 
 @using Entities
+@inject Services.AppService _appService
 
-<BsListGroup Items="Items"
+<BsListGroup TItem="WorkItem"
+             Items="Items"
              NameSelector="item=>item.Name"
-             ChildrenSelector="item=>item.Children"/>
+             ChildrenSelector="item=>item.Children"
+             Parent="(WorkItem?)null">
+    <SlotFooter>
+        <div>context ID: @context?.Id</div>
+        <div>context PID: @context?.ParentId</div>
+        <div>context Name @context?.Name</div>
+        <WorkItemAdder ParentId="@context?.Id"
+                       WorkItemAdded="LoadData" />
+    </SlotFooter>
+</BsListGroup>
 
 @code {
-    private WorkItem[] Items { get; set; } = new[]
+    private WorkItem[] Items = Array.Empty<WorkItem>();
+
+    protected override void OnInitialized()
     {
-        new WorkItem
-        {
-            Id = "1",
-            Name = "1",
-            Children = new List<WorkItem>
-            {
-                new WorkItem
-                {
-                    Id = "1-1",
-                    Name = "1-1"
-                },
-                new WorkItem
-                {
-                    Id = "1-2",
-                    Name = "1-2"
-                }
-            }
-        },
-        new WorkItem
-        {
-            Id = "2",
-            Name = "2",
-            Children = new List<WorkItem>
-            {
-                new WorkItem
-                {
-                    Id = "2-1",
-                    Name = "2-1"
-                },
-                new WorkItem
-                {
-                    Id = "2-2",
-                    Name = "2-2"
-                }
-            }
-        }
-    };
+        LoadData();
+    }
 
-
+    public void LoadData()
+    {
+        Items = _appService.GetWorkItems();
+    }
 
 }

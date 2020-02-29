@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +11,31 @@ namespace TodoAndWorkLog.Services
     public class AppService
     {
         private readonly AppDbContext _db;
+        private readonly ILogger _logger;
 
-        public AppService(AppDbContext db)
+        public AppService(AppDbContext db,ILogger<AppService> logger)
         {
             _db = db;
+            _logger = logger;
         }
 
         public WorkItem[] GetWorkItems()
         {
             return _db.WorkItem
-               .AsNoTracking()
                .ToArray()
                .Where(item => item.ParentId == null)
                .ToArray();
         }
 
-        //public Project InsertPost(Project model)
-        //{
-        //    model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-        //    model.RecordTime = DateTime.Now;
-        //    _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-        //    _db.SaveChanges();
-        //    return model;
-        //}
+        public WorkItem AddWorkItem(WorkItem model)
+        {
+            _logger.LogInformation(System.Text.Json.JsonSerializer.Serialize(model));
+            model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+            model.RecordTime = DateTime.Now;
+            _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+            _db.SaveChanges();
+            return model;
+        }
 
         //[HttpPut("{id}")]
         //public ActionResult<Project> Patch(string id, [FromBody] Project model)

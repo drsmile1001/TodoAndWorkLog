@@ -27,7 +27,9 @@ namespace TodoAndWorkLog
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=TodoAndWorkLog.db"));
+            services.AddDbContext<AppDbContext>(options => options
+                .UseSqlite("Data Source=TodoAndWorkLog.db")
+                .EnableSensitiveDataLogging());
             services.AddScoped<AppService>();
         }
 

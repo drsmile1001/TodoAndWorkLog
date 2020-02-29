@@ -1,0 +1,46 @@
+@using Entities
+@inject Services.AppService _appService
+
+
+<form>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label>工項名稱</label>
+            <input type="text"
+                   class="form-control"
+                   @bind="Name">
+        </div>
+        <div class="form-group col-md-6">
+            <label>描述</label>
+            <input type="text"
+                   class="form-control"
+                   @bind="Description">
+        </div>
+    </div>
+    <button class="btn btn-primary"
+            type="button"
+            @onclick="OnAddButtonClick">
+        新增工作項目
+    </button>
+</form>
+
+@code{
+    [Parameter]
+    public string? ParentId {get;set;}
+
+    [Parameter]
+    public EventCallback WorkItemAdded {get;set;}
+
+    private string Name {get;set;} = "";
+    private string Description {get;set;} = "";
+
+    private void OnAddButtonClick(){
+        _appService.AddWorkItem(new WorkItem
+        {
+            ParentId = ParentId,
+            Name = Name,
+            Description = Description,
+        });
+        WorkItemAdded.InvokeAsync(this);
+    }
+}

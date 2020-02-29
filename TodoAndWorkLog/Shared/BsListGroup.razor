@@ -1,33 +1,53 @@
 ﻿@typeparam TItem
 <ul class="list-group">
-
     @foreach (var item in Items)
     {
         <li class="list-group-item">
-            @NameSelector(item)
+            @if(ChildContent !=null){
+                @ChildContent
+            }
+            else if(NameSelector != null)
+                @NameSelector(item)
+            else
+                @item
             @{
                 var children = ChildrenSelector == null
-                    ? null
+                    ? Array.Empty<TItem>()
                     : ChildrenSelector(item);
-                if (children != null && children.Any())
-                {
-                    <BsListGroup TItem="TItem"
-                                 Items="children"
-                                 NameSelector="NameSelector"
-                                 ChildrenSelector="ChildrenSelector!" />
-                }
+                <BsListGroup TItem="TItem"
+                            Items="children"
+                            NameSelector="NameSelector"
+                            ChildrenSelector="ChildrenSelector!"
+                            Parent="item" >
+                    <SlotFooter>
+                        @if (SlotFooter != null)
+                        {
+                            @SlotFooter(context)
+                        }
+                    </SlotFooter>
+                </BsListGroup>
             }
         </li>
     }
 </ul>
-
+@if(SlotFooter!=null){
+    @SlotFooter(Parent)
+}
 @code {
     [Parameter]
-    public IEnumerable<TItem> Items { get; set; }
-
+    public RenderFragment<TItem?>? SlotFooter { get; set; }
+    
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public Func<TItem, string> NameSelector { get; set; }
+    public IEnumerable<TItem> Items { get; set; } = Array.Empty<TItem>();
+
+    [Parameter]
+    public TItem? Parent { get; set; }
+
+    [Parameter]
+    public Func<TItem, string>? NameSelector { get; set; }
 
     [Parameter]
     public Func<TItem, IEnumerable<TItem>>? ChildrenSelector { get; set; } = null;

@@ -29,8 +29,8 @@
   }
 </div>
 <AppAlert @bind-Show="ShowAlertMessage"
-         Message="@AlertMessage"
-         Type="@AppAlert.AlertType.Danger"/>
+          Message="@AlertMessage"
+          Type="@AlertType"/>
 
 @code{
     [Parameter]
@@ -46,6 +46,8 @@
 
     private string AlertMessage {get;set;} = "";
 
+    private AppAlert.AlertType AlertType {get;set;} = AppAlert.AlertType.Danger;
+
     private bool ShowAlertMessage
     {
         get=>!string.IsNullOrWhiteSpace(AlertMessage);
@@ -57,16 +59,28 @@
     }
 
     private void OnKeyUp(KeyboardEventArgs e){
-        if(e.Key != "Enter")return;
-        Item.ParentId = ParentId;
+        if(e.Key != "Enter") return;
+        if(string.IsNullOrWhiteSpace(Item.Name)) return;
+        if(string.IsNullOrWhiteSpace(Item.Id)){
+          Item.ParentId = ParentId;
         try
         {
             _appService.AddWorkItem(Item);
+            Item = new WorkItem();
             WorkItemChanged.InvokeAsync(this);
         }
         catch (System.ArgumentException argumentException)
         {
+            AlertType = AppAlert.AlertType.Danger;
             AlertMessage = argumentException.Message;
+        }
+        }
+        else
+        {
+            _appService.UpdateWorkItem(Item);
+            AlertType = AppAlert.AlertType.Success;
+            AlertMessage="更新成功";
+            WorkItemChanged.InvokeAsync(this);
         }
     }
 

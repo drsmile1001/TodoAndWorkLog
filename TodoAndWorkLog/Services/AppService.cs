@@ -48,6 +48,14 @@ namespace TodoAndWorkLog.Services
             return model;
         }
 
+        public WorkItem UpdateWorkItem(WorkItem model)
+        {
+            model.RecordTime = DateTime.Now;
+            _db.Update(model);
+            _db.SaveChanges();
+            return model;
+        }
+
         public void DeleteWorkItem(WorkItem item){
             _db.Remove(item);
             _db.SaveChanges();

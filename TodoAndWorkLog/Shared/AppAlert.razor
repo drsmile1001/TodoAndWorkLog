@@ -1,0 +1,47 @@
+@if(Show){
+<div class="alert app-alert @TypeClass"
+     role="alert"
+     @onclick="Close">
+  @if(Slot != null)
+    @Slot
+  else if(!string.IsNullOrWhiteSpace(Message))
+    @Message
+</div>
+}
+<style>
+    .app-alert{
+        cursor: pointer;
+    }
+</style>
+
+@code{
+    public enum AlertType{
+        Primary,
+        Secondary,
+        Success,
+        Danger,
+        Warning,
+        Info
+    }
+    [Parameter]
+    public bool Show {get;set;}
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    [Parameter]
+    public AlertType Type {get;set;} = AlertType.Primary;
+
+    [Parameter]
+    public RenderFragment? Slot { get; set; }
+
+    [Parameter]
+    public string? Message { get; set; }
+
+    public string TypeClass => $"alert-{Type.ToString().ToLower()}";
+
+    private Task Close(){
+        Show = false;
+        return ShowChanged.InvokeAsync(Show);
+    }
+}

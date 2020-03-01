@@ -1,0 +1,78 @@
+@using Entities
+@inject Services.AppService _appService
+
+<div class="input-group input-group-sm mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text">工項名稱/描述/截止日期</span>
+  </div>
+  <input type="text"
+         class="form-control"
+         @bind="Item.Name"
+         @onkeyup="OnKeyUp">
+  <input type="text"
+         class="form-control"
+         @bind="Item.Description"
+         @onkeyup="OnKeyUp">
+  <input type="date"
+         class="form-control"
+         @bind="Item.DueDate"
+         @onkeyup="OnKeyUp"
+         min="@DueDateMin">
+  @if(!string.IsNullOrWhiteSpace(Item.Id)){
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary"
+              type="button"
+              @onclick="onDeleteButtonClick">
+        刪除
+      </button>
+    </div>
+  }
+</div>
+<AppAlert @bind-Show="ShowAlertMessage"
+         Message="@AlertMessage"
+         Type="@AppAlert.AlertType.Danger"/>
+
+@code{
+    [Parameter]
+    public WorkItem Item {get;set;} = new WorkItem();
+
+    [Parameter]
+    public string? ParentId {get;set;}
+
+    [Parameter]
+    public EventCallback WorkItemChanged {get;set;}
+
+    private string DueDateMin => DateTime.Today.ToString("yyyy-MM-dd");
+
+    private string AlertMessage {get;set;} = "";
+
+    private bool ShowAlertMessage
+    {
+        get=>!string.IsNullOrWhiteSpace(AlertMessage);
+        set
+        {
+           if(value) return;
+           AlertMessage = "";
+        }
+    }
+
+    private void OnKeyUp(KeyboardEventArgs e){
+        if(e.Key != "Enter")return;
+        Item.ParentId = ParentId;
+        try
+        {
+            _appService.AddWorkItem(Item);
+            WorkItemChanged.InvokeAsync(this);
+        }
+        catch (System.ArgumentException argumentException)
+        {
+            AlertMessage = argumentException.Message;
+        }
+    }
+
+    private void onDeleteButtonClick(MouseEventArgs e){
+        if(string.IsNullOrWhiteSpace(Item.Id)) return;
+        _appService.DeleteWorkItem(Item);
+        WorkItemChanged.InvokeAsync(this);
+    }
+}

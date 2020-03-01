@@ -2,21 +2,21 @@
 
 @using Entities
 @inject Services.AppService _appService
-<BsListGroup TItem="WorkItem"
+<AppTreeList TItem="WorkItem"
              Items="Items"
              ChildrenSelector="item=>item.Children"
              Parent="(WorkItem?)null">
     <SlotItem >
-        @context.Name @context.Description @context.RecordTime
+        <WorkItemEditor Item="@context"
+                        WorkItemChanged="LoadData" />
     </SlotItem>
     <SlotHeader>
         <div>
-            <WorkItemAdder ParentId="@context?.Id"
-                           WorkItemAdded="LoadData" />
+            <WorkItemEditor ParentId="@context?.Id"
+                            WorkItemChanged="LoadData" />
         </div>
-        
     </SlotHeader>
-</BsListGroup>
+</AppTreeList>
 
 @code {
     private WorkItem[] Items = Array.Empty<WorkItem>();

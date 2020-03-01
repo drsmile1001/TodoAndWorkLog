@@ -15,7 +15,7 @@
             var children = ChildrenSelector == null
                 ? Array.Empty<TItem>()
                 : ChildrenSelector(item);
-            <BsListGroup TItem="TItem"
+            <AppTreeList TItem="TItem"
                          Items="children"
                          ChildrenSelector="ChildrenSelector!"
                          Parent="item"

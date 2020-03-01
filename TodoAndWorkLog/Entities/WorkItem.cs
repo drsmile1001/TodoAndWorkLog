@@ -19,7 +19,6 @@ namespace TodoAndWorkLog.Entities
 
         public DateTime? DoneDate { get; set; }
 
-
         public WorkItem? Parent{ get; set; }
 
         public List<WorkItem> Children { get; set; } = new List<WorkItem>();

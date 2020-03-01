@@ -29,12 +29,28 @@ namespace TodoAndWorkLog.Services
 
         public WorkItem AddWorkItem(WorkItem model)
         {
-            _logger.LogInformation(System.Text.Json.JsonSerializer.Serialize(model));
+            var oldParentIdAndName = _db.WorkItem.Select(item=>new
+            {
+                item.ParentId,
+                item.Name
+            }).ToHashSet();
+            var conflict = oldParentIdAndName.Contains(new
+            {
+                ParentId = model.ParentId,
+                Name = model.Name
+            });
+            if(conflict)
+                throw new ArgumentException("已有相同名稱工作項目");
             model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
             model.RecordTime = DateTime.Now;
             _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
             _db.SaveChanges();
             return model;
+        }
+
+        public void DeleteWorkItem(WorkItem item){
+            _db.Remove(item);
+            _db.SaveChanges();
         }
 
         //[HttpPut("{id}")]

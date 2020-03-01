@@ -1,33 +1,30 @@
 ﻿@typeparam TItem
-<ul class="list-group">
+
+@if(SlotHeader!=null){
+    @SlotHeader(Parent)
+}
+<ul>
     @foreach (var item in Items)
     {
-        <li class="list-group-item">
-            @if(ChildContent !=null){
-                @ChildContent
-            }
-            else if(NameSelector != null)
-                @NameSelector(item)
-            else
-                @item
-            @{
-                var children = ChildrenSelector == null
-                    ? Array.Empty<TItem>()
-                    : ChildrenSelector(item);
-                <BsListGroup TItem="TItem"
-                            Items="children"
-                            NameSelector="NameSelector"
-                            ChildrenSelector="ChildrenSelector!"
-                            Parent="item" >
-                    <SlotFooter>
-                        @if (SlotFooter != null)
-                        {
-                            @SlotFooter(context)
-                        }
-                    </SlotFooter>
-                </BsListGroup>
-            }
-        </li>
+    <li>
+        @if (SlotItem != null)
+            @SlotItem(item)
+        else 
+            @item
+        @{
+            var children = ChildrenSelector == null
+                ? Array.Empty<TItem>()
+                : ChildrenSelector(item);
+            <BsListGroup TItem="TItem"
+                         Items="children"
+                         ChildrenSelector="ChildrenSelector!"
+                         Parent="item"
+                         SlotHeader="SlotHeader"
+                         SlotItem="SlotItem"
+                         SlotFooter="SlotFooter"
+                         />
+        }
+    </li>
     }
 </ul>
 @if(SlotFooter!=null){
@@ -35,19 +32,19 @@
 }
 @code {
     [Parameter]
-    public RenderFragment<TItem?>? SlotFooter { get; set; }
-    
+    public RenderFragment<TItem?> SlotHeader { get; set; } = item => new RenderFragment(builder=> { });
+
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    public RenderFragment<TItem> SlotItem { get; set; } = item => new RenderFragment(builder=> { });
+
+    [Parameter]
+    public RenderFragment<TItem?> SlotFooter { get; set; } = item => new RenderFragment(builder=> { });
 
     [Parameter]
     public IEnumerable<TItem> Items { get; set; } = Array.Empty<TItem>();
 
     [Parameter]
     public TItem? Parent { get; set; }
-
-    [Parameter]
-    public Func<TItem, string>? NameSelector { get; set; }
 
     [Parameter]
     public Func<TItem, IEnumerable<TItem>>? ChildrenSelector { get; set; } = null;

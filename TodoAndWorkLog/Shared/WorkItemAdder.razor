@@ -1,28 +1,19 @@
 @using Entities
 @inject Services.AppService _appService
 
-
-<form>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label>工項名稱</label>
-            <input type="text"
-                   class="form-control"
-                   @bind="Name">
-        </div>
-        <div class="form-group col-md-6">
-            <label>描述</label>
-            <input type="text"
-                   class="form-control"
-                   @bind="Description">
-        </div>
-    </div>
-    <button class="btn btn-primary"
-            type="button"
-            @onclick="OnAddButtonClick">
-        新增工作項目
-    </button>
-</form>
+<div class="input-group input-group-sm mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text">工項名稱/描述</span>
+  </div>
+  <input type="text"
+         class="form-control"
+         @bind="Name"
+         @onkeyup="OnKeyUp">
+  <input type="text"
+         class="form-control"
+         @bind="Description"
+         @onkeyup="OnKeyUp">
+</div>
 
 @code{
     [Parameter]
@@ -34,7 +25,8 @@
     private string Name {get;set;} = "";
     private string Description {get;set;} = "";
 
-    private void OnAddButtonClick(){
+    private void OnKeyUp(KeyboardEventArgs e){
+        if(e.Key != "Enter")return;
         _appService.AddWorkItem(new WorkItem
         {
             ParentId = ParentId,

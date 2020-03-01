@@ -2,19 +2,20 @@
 
 @using Entities
 @inject Services.AppService _appService
-
 <BsListGroup TItem="WorkItem"
              Items="Items"
-             NameSelector="item=>item.Name"
              ChildrenSelector="item=>item.Children"
              Parent="(WorkItem?)null">
-    <SlotFooter>
-        <div>context ID: @context?.Id</div>
-        <div>context PID: @context?.ParentId</div>
-        <div>context Name @context?.Name</div>
-        <WorkItemAdder ParentId="@context?.Id"
-                       WorkItemAdded="LoadData" />
-    </SlotFooter>
+    <SlotItem >
+        @context.Name @context.Description @context.RecordTime
+    </SlotItem>
+    <SlotHeader>
+        <div>
+            <WorkItemAdder ParentId="@context?.Id"
+                           WorkItemAdded="LoadData" />
+        </div>
+        
+    </SlotHeader>
 </BsListGroup>
 
 @code {

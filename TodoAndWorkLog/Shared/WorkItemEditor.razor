@@ -3,22 +3,40 @@
 
 <div class="input-group input-group-sm mb-3">
   <div class="input-group-prepend">
-    <span class="input-group-text">工項名稱/描述/截止日期</span>
+    <span class="input-group-text @StateClass">
+      @StateText
+    </span>
   </div>
   <input type="text"
          class="form-control"
+         placeholder="工項名稱"
          @bind="Item.Name"
          @onkeyup="OnKeyUp">
   <input type="text"
          class="form-control"
+         placeholder="描述"
          @bind="Item.Description"
          @onkeyup="OnKeyUp">
   <input type="date"
          class="form-control"
+         placeholder="截止日期"
          @bind="Item.DueDate"
-         @onkeyup="OnKeyUp"
-         min="@DueDateMin">
+         @onkeyup="OnKeyUp">
   @if(!string.IsNullOrWhiteSpace(Item.Id)){
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary"
+              type="button"
+              @onclick="()=>AddOrUpdate(!Item.DoneDate.HasValue)">
+        @(Item.DoneDate.HasValue ? "取消完成" : "完成")
+      </button>
+    </div>
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary"
+              type="button"
+              @onclick="()=>AddOrUpdate()">
+        更新
+      </button>
+    </div>
     <div class="input-group-append">
       <button class="btn btn-outline-secondary"
               type="button"
@@ -27,10 +45,18 @@
       </button>
     </div>
   }
+  else
+  {
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary"
+              type="button"
+              @onclick="()=>AddOrUpdate()">
+        新增
+      </button>
+    </div>
+  }
 </div>
-<AppAlert @bind-Show="ShowAlertMessage"
-          Message="@AlertMessage"
-          Type="@AlertType"/>
+<AppAlert @ref="_alert" />
 
 @code{
     [Parameter]
@@ -42,8 +68,27 @@
     [Parameter]
     public EventCallback WorkItemChanged {get;set;}
 
-    private string DueDateMin => DateTime.Today.ToString("yyyy-MM-dd");
+    private string StateText
+    {
+      get{
+        if(Item.DoneDate.HasValue)
+          return "完成";
+        else if(Item.DueDate.HasValue && Item.DueDate.Value < DateTime.Today)
+          return "逾期";
+        else
+          return "代辦";
+      }
+    }
 
+    private string StateClass => StateText switch
+    {
+      "完成" => "alert-success",
+      "逾期" => "alert-warning",
+      _  => ""
+    };
+
+    private AppAlert _alert;
+   
     private string AlertMessage {get;set;} = "";
 
     private AppAlert.AlertType AlertType {get;set;} = AppAlert.AlertType.Danger;
@@ -58,33 +103,40 @@
         }
     }
 
-    private void OnKeyUp(KeyboardEventArgs e){
-        if(e.Key != "Enter") return;
+    private void AddOrUpdate(bool? done = null){
         if(string.IsNullOrWhiteSpace(Item.Name)) return;
         if(string.IsNullOrWhiteSpace(Item.Id)){
           Item.ParentId = ParentId;
-        try
-        {
-            _appService.AddWorkItem(Item);
-            Item = new WorkItem();
-            WorkItemChanged.InvokeAsync(this);
-        }
-        catch (System.ArgumentException argumentException)
-        {
-            AlertType = AppAlert.AlertType.Danger;
-            AlertMessage = argumentException.Message;
-        }
+          try
+          {
+              _appService.AddWorkItem(Item);
+              Item = new WorkItem();
+              _alert.ShowMessage(AppAlert.AlertType.Success,"新增成功");
+              WorkItemChanged.InvokeAsync(this);
+          }
+          catch (System.ArgumentException argumentException)
+          {
+            _alert.ShowMessage(AppAlert.AlertType.Danger,argumentException.Message);
+          }
         }
         else
         {
+            if(done == true)
+              Item.DoneDate = DateTime.Now;
+            else if(done == false)
+              Item.DoneDate = null;
             _appService.UpdateWorkItem(Item);
-            AlertType = AppAlert.AlertType.Success;
-            AlertMessage="更新成功";
+            _alert.ShowMessage(AppAlert.AlertType.Success,"更新成功");
             WorkItemChanged.InvokeAsync(this);
         }
     }
 
-    private void onDeleteButtonClick(MouseEventArgs e){
+    private void OnKeyUp(KeyboardEventArgs e){
+        if(e.Key != "Enter") return;
+        AddOrUpdate();
+    }
+
+    private void onDeleteButtonClick(){
         if(string.IsNullOrWhiteSpace(Item.Id)) return;
         _appService.DeleteWorkItem(Item);
         WorkItemChanged.InvokeAsync(this);

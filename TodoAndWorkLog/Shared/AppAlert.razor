@@ -25,24 +25,29 @@
     }
 
     [Parameter]
-    public bool Show {get;set;}
-
-    [Parameter]
-    public EventCallback<bool> ShowChanged { get; set; }
-
-    [Parameter]
-    public AlertType Type {get;set;} = AlertType.Primary;
-
-    [Parameter]
     public RenderFragment? Slot { get; set; }
 
-    [Parameter]
-    public string? Message { get; set; }
+    private string? Message { get; set; }
+
+    private AlertType Type { get;set;} = AlertType.Primary;
 
     public string TypeClass => $"alert-{Type.ToString().ToLower()}";
 
-    private Task Close(){
+    private bool Show {get;set;}
+
+    public async Task ShowMessage(AlertType type,string message){
+        Console.WriteLine("!");
+        Type = type;
+        Message = message;
+        Show = true;
+        this.StateHasChanged();
+        await Task.Delay(1000);
         Show = false;
-        return ShowChanged.InvokeAsync(Show);
+        this.StateHasChanged();
+        
+    }
+
+    private void Close(){
+        Show = false;
     }
 }

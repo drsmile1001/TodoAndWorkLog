@@ -2,16 +2,21 @@
 @inject Services.AppService _appService
 
 <div class="input-group input-group-sm mb-3">
-  <div class="input-group-prepend">
-    <span class="input-group-text @StateClass">
+  <div class="input-group-prepend"
+       ondragover="event.preventDefault();"
+       @ondragstart="ondragstart"
+       @ondrop="ondrop"
+       draggable="true">
+    <label class="input-group-text @StateClass">
       @StateText
-    </span>
+    </label>
   </div>
   <input type="text"
          class="form-control"
          placeholder="工項名稱"
          @bind="Item.Name"
-         @onkeyup="OnKeyUp">
+         @onkeyup="OnKeyUp"
+         draggable="false">
   <input type="text"
          class="form-control"
          placeholder="描述"
@@ -141,4 +146,20 @@
         _appService.DeleteWorkItem(Item);
         WorkItemChanged.InvokeAsync(this);
     }
+
+    private void ondragstart(DragEventArgs e){
+      DraggingItem = this.Item;
+    }
+
+    private void ondrop(DragEventArgs e){
+      if(Item.Id == null && ParentId != null) return;
+      if(DraggingItem == null) return;
+      Console.WriteLine($"Id:{Item.Id}");
+      DraggingItem.ParentId = string.IsNullOrWhiteSpace(Item.Id) ? null : Item.Id;
+      _appService.UpdateWorkItem(DraggingItem);
+      WorkItemChanged.InvokeAsync(this);
+    }
+
+    private static WorkItem? DraggingItem {get;set;}
+
 }

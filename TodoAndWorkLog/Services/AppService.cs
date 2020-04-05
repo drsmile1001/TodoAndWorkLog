@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,26 +11,30 @@ namespace TodoAndWorkLog.Services
 {
     public class AppService
     {
-        private readonly AppDbContext _db;
         private readonly ILogger _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public AppService(AppDbContext db,ILogger<AppService> logger)
+        public AppService(ILogger<AppService> logger,IServiceScopeFactory serviceScopeFactory)
         {
-            _db = db;
             _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public WorkItem[] GetWorkItems()
         {
-            return _db.WorkItem
-               .ToArray()
-               .Where(item => item.ParentId == null)
-               .ToArray();
+            using var scope = _serviceScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var allItems = db.WorkItem.ToArray();
+            return allItems.Where(item=>item.ParentId == null).ToArray();
         }
 
         public WorkItem AddWorkItem(WorkItem model)
         {
-            var oldParentIdAndName = _db.WorkItem.Select(item=>new
+            using var scope = _serviceScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var oldParentIdAndName = db.WorkItem.Select(item=>new
             {
                 item.ParentId,
                 item.Name
@@ -43,22 +48,31 @@ namespace TodoAndWorkLog.Services
                 throw new ArgumentException("已有相同名稱工作項目");
             model.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
             model.RecordTime = DateTime.Now;
-            _db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-            _db.SaveChanges();
+            db.Attach(model).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+            db.SaveChanges();
             return model;
         }
 
         public WorkItem UpdateWorkItem(WorkItem model)
         {
+            model.Parent = null;
+
+            using var scope = _serviceScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
             model.RecordTime = DateTime.Now;
-            _db.Update(model);
-            _db.SaveChanges();
+            db.Update(model);
+            db.SaveChanges();
             return model;
         }
 
         public void DeleteWorkItem(WorkItem item){
-            _db.Remove(item);
-            _db.SaveChanges();
+            
+            using var scope = _serviceScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            db.Remove(item);
+            db.SaveChanges();
         }
 
         //[HttpPut("{id}")]

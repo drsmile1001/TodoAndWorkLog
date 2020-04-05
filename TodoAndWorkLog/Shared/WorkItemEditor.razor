@@ -152,7 +152,6 @@
     }
 
     private void ondrop(DragEventArgs e){
-      if(Item.Id == null && ParentId != null) return;
       if(DraggingItem == null) return;
       Console.WriteLine($"Id:{Item.Id}");
       DraggingItem.ParentId = string.IsNullOrWhiteSpace(Item.Id) ? null : Item.Id;

@@ -341,3 +341,4 @@ healthchecksdb
 TodoAndWorkLog/TodoAndWorkLog.db
 *.db-wal
 *.db-shm
+TodoAndWorkLog/Logs

@@ -18,6 +18,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
     <PackageReference Include="MongoDB.Bson" Version="2.10.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.3.0-dev-00152" />
   </ItemGroup>
 
 
